@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veltrix Docs - Next-Level Roblox Scripting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0B0F19;
+            --bg-secondary: #0D1B2A;
+            --bg-tertiary: #111827;
+            --accent: #00F0FF;
+            --accent-dim: rgba(0, 240, 255, 0.6);
+            --accent-glow: rgba(0, 240, 255, 0.35);
+            --text-primary: #F7F9FC;
+            --text-secondary: #A9B3C2;
+            --success: #00FF88;
+            --warning: #FFD700;
+            --error: #FF4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Pixel Grid Background */
+        .pixel-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.08;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.3) 1px, transparent 1px);
+            background-size: 32px 32px;
+            animation: gridDrift 20s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            0% { background-position: 0 0; }
+            100% { background-position: 32px 32px; }
+        }
+
+        /* Scanlines Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.06;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 240, 255, 0.1) 2px,
+                rgba(0, 240, 255, 0.1) 4px
+            );
+            animation: scanlineMove 8s linear infinite;
+        }
+
+        @keyframes scanlineMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* Noise Overlay */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.04;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Loading Screen */
+        .loader-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-logo {
+            width: clamp(120px, 18vw, 200px);
+            height: clamp(120px, 18vw, 200px);
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px var(--accent-glow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--bg-secondary);
+        }
+
+        .loader-logo::before,
+        .loader-logo::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+        }
+
+        .loader-logo::before {
+            top: -4px;
+            left: -4px;
+        }
+
+        .loader-logo::after {
+            bottom: -4px;
+            right: -4px;
+        }
+
+        .loader-logo h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(18px, 3vw, 28px);
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            letter-spacing: 0.1em;
+        }
+
+        .loader-logo span {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 1.5vw, 14px);
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .loader-bar-container {
+            width: min(52vw, 400px);
+            height: 18px;
+            border: 2px solid var(--accent-dim);
+            margin-top: 40px;
+            position: relative;
+            background: var(--bg-tertiary);
+        }
+
+        .loader-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .loader-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(8px, 1.2vw, 12px);
+            color: var(--text-secondary);
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .loader-percent {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 1.5vw, 14px);
+            color: var(--accent);
+            margin-top: 8px;
+        }
+
+        /* Navigation */
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(11, 15, 25, 0.95) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-header.visible {
+            transform: translateY(0);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo-icon {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--accent);
+        }
+
+        .nav-logo-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-links a {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .menu-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-right: 2px solid var(--accent-dim);
+            z-index: 90;
+            padding: 80px 20px 20px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            left: 20px;
+            top: 80px;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 95;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .sidebar-toggle:hover svg {
+            stroke: var(--bg-primary);
+        }
+
+        .sidebar-toggle svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--accent);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--accent);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--accent-dim);
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 10px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: var(--accent);
+            border-left-color: var(--accent);
+            background: rgba(0, 240, 255, 0.05);
+            padding-left: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-open {
+            margin-left: 240px;
+        }
+
+        /* Sections */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 24px;
+            position: relative;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+        }
+
+        .hero-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(28px, 5vw, 56px);
+            color: var(--accent);
+            text-shadow: 
+                0 0 10px var(--accent-glow),
+                0 0 20px var(--accent-glow),
+                0 0 40px var(--accent-glow);
+            letter-spacing: 0.08em;
+            line-height: 1.3;
+            margin-bottom: 24px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards 0.5s;
+        }
+
+        .hero-tagline {
+            font-size: clamp(14px, 2vw, 18px);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards 0.7s;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards 0.9s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            padding: 16px 28px;
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn::before,
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .btn::before {
+            top: -3px;
+            left: -3px;
+        }
+
+        .btn::after {
+            bottom: -3px;
+            right: -3px;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn:hover::before,
+        .btn:hover::after {
+            background: var(--bg-primary);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--accent);
+        }
+
+        .btn-primary::before,
+        .btn-primary::after {
+            background: var(--bg-primary);
+        }
+
+        .btn-primary:hover::before,
+        .btn-primary:hover::after {
+            background: var(--accent);
+        }
+
+        /* Section Headers */
+        .section-label {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 1.5vw, 12px);
+            color: var(--accent-dim);
+            letter-spacing: 0.15em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(22px, 3.5vw, 40px);
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+            letter-spacing: 0.06em;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* Script Showcase Section */
+        .showcase-section {
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+
+        .code-card {
+            width: min(90vw, 800px);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+            padding: 28px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .code-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+
+        .code-card::before,
+        .code-card::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+        }
+
+        .code-card::before {
+            top: -4px;
+            left: -4px;
+        }
+
+        .code-card::after {
+            bottom: -4px;
+            right: -4px;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .code-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--accent-dim);
+        }
+
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .code-dot.red { background: var(--error); }
+        .code-dot.yellow { background: var(--warning); }
+        .code-dot.green { background: var(--success); }
+
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11px, 1.5vw, 14px);
+            color: var(--accent);
+            overflow-x: auto;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+        }
+
+        .copy-btn {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .copy-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+            border-color: var(--success);
+            color: var(--bg-primary);
+        }
+
+        .copy-btn.copied::before,
+        .copy-btn.copied::after {
+            background: var(--bg-primary);
+        }
+
+        .helper-text {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .helper-text.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease 0.3s;
+        }
+
+        /* Features Section */
+        .features-section {
+            background: var(--bg-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            width: min(92vw, 1100px);
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-dim);
+            padding: 28px;
+            position: relative;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 25px var(--accent-glow);
+            transform: translateY(-4px);
+        }
+
+        .feature-card::before,
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card::before {
+            top: -3px;
+            left: -3px;
+        }
+
+        .feature-card::after {
+            bottom: -3px;
+            right: -3px;
+        }
+
+        .feature-card:hover::before,
+        .feature-card:hover::after {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            color: var(--accent);
+        }
+
+        .feature-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Compatibility Section */
+        .compatibility-section {
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+        }
+
+        .compat-list {
+            width: min(88vw, 720px);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--accent-dim);
+            padding: 24px;
+            position: relative;
+        }
+
+        .compat-list::before,
+        .compat-list::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+        }
+
+        .compat-list::before {
+            top: -4px;
+            left: -4px;
+        }
+
+        .compat-list::after {
+            bottom: -4px;
+            right: -4px;
+        }
+
+        .compat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .compat-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 0.5s ease;
+        }
+
+        .compat-item:last-child {
+            border-bottom: none;
+        }
+
+        .compat-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .compat-name::before {
+            content: '>';
+            color: var(--accent);
+        }
+
+        .compat-status {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 9px;
+            padding: 6px 12px;
+            border: 1px solid;
+        }
+
+        .compat-status.supported {
+            color: var(--success);
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .compat-status.beta {
+            color: var(--warning);
+            border-color: var(--warning);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .compat-status.planned {
+            color: var(--text-secondary);
+            border-color: var(--text-secondary);
+            background: rgba(169, 179, 194, 0.1);
+        }
+
+        .compat-note {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: var(--bg-primary);
+        }
+
+        .cta-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(24px, 4vw, 40px);
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .cta-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+
+        .cta-subtitle {
+            font-size: clamp(14px, 2vw, 18px);
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 32px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .cta-subtitle.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease 0.2s;
+        }
+
+        .cta-btn {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .cta-btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease 0.4s;
+        }
+
+        /* Terminal Section */
+        .terminal-section {
+            min-height: auto;
+            padding: 40px 24px;
+            background: var(--bg-secondary);
+        }
+
+        .terminal-box {
+            width: min(90vw, 900px);
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-dim);
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--accent-dim);
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .terminal-title {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .terminal-content {
+            padding: 20px;
+            min-height: 120px;
+        }
+
+        .terminal-line {
+            font-size: 13px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .terminal-line.success {
+            color: var(--success);
+        }
+
+        .terminal-line.error {
+            color: var(--error);
+        }
+
+        .terminal-line.warning {
+            color: var(--warning);
+        }
+
+        .terminal-prompt {
+            color: var(--success);
+        }
+
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: var(--accent);
+            animation: blink 1s step-end infinite;
+            margin-left: 4px;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Footer */
+        .footer-section {
+            min-height: auto;
+            padding: 60px 24px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--accent-dim);
+        }
+
+        .footer-content {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .footer-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .footer-link {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--accent-dim);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .footer-legal {
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        /* Copy Notification */
+        .copy-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--success);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .copy-notification.show {
+            transform: translateX(0);
+        }
+
+        .copy-notification-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--success);
+        }
+
+        .copy-notification-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--success);
+        }
+
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .main-content.sidebar-open {
+                margin-left: 0;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .compat-item {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .sidebar-toggle {
+                top: auto;
+                bottom: 20px;
+                left: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .loader-logo h1 {
+                font-size: 16px;
+            }
+
+            .hero-title {
+                font-size: 22px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .code-card {
+                padding: 16px;
+            }
+
+            .feature-card {
+                padding: 20px;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .pixel-grid,
+            .scanlines {
+                animation: none;
+            }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="pixel-grid"></div>
+    <div class="scanlines"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Loading Screen -->
+    <div class="loader-screen" id="loader">
+        <div class="loader-logo">
+            <h1>VELTRIX</h1>
+            <span>DOCS</span>
+        </div>
+        <div class="loader-bar-container">
+            <div class="loader-bar" id="loaderBar"></div>
+        </div>
+        <div class="loader-text">Initializing Veltrix Hub...</div>
+        <div class="loader-percent" id="loaderPercent">0%</div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="nav-header" id="navHeader">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">V</div>
+            <span class="nav-logo-text">VELTRIX</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#showcase">Showcase</a>
+            <a href="#features">Features</a>
+            <a href="#compatibility">Compatibility</a>
+        </nav>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+        </svg>
+    </button>
+    
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Getting Started</div>
+                <a href="#hero" class="sidebar-link active">Home</a>
+                <a href="#showcase" class="sidebar-link">Script Showcase</a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Documentation</div>
+                <a href="#features" class="sidebar-link">Features</a>
+                <a href="#compatibility" class="sidebar-link">Compatibility</a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Resources</div>
+                <a href="#cta" class="sidebar-link">Get Started</a>
+                <a href="#terminal" class="sidebar-link">Console</a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Hero Section -->
+        <section class="hero-section" id="hero">
+            <h1 class="hero-title">VELTRIX HUB</h1>
+            <p class="hero-tagline">Next-level Roblox scripting. Clean UI. Adaptive performance. Built for every executor.</p>
+            <div class="hero-buttons">
+                <a href="#showcase" class="btn btn-primary">Open Script Showcase</a>
+                <a href="#features" class="btn">View Features</a>
+            </div>
+        </section>
+
+        <!-- Script Showcase Section -->
+        <section class="showcase-section" id="showcase">
+            <div class="section-label">Script Showcase</div>
+            <div class="code-card" id="codeCard">
+                <div class="code-header">
+                    <span class="code-title">loader.lua</span>
+                    <div class="code-dots">
+                        <span class="code-dot red"></span>
+                        <span class="code-dot yellow"></span>
+                        <span class="code-dot green"></span>
+                    </div>
+                </div>
+                <div class="code-block">
+                    <code>loadstring(game:HttpGet("https://veltrix.dev/loader.lua"))()</code>
+                </div>
+                <button class="btn copy-btn" id="copyBtn" data-code="loadstring(game:HttpGet(&quot;https://veltrix.dev/loader.lua&quot;))()">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    Copy to Clipboard
+                </button>
+            </div>
+            <p class="helper-text" id="helperText">Paste into your executor and run. No key required.</p>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section" id="features">
+            <h2 class="section-title">FEATURES</h2>
+            <div class="features-grid">
+                <div class="feature-card" data-delay="0">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Adaptive Performance</h3>
+                    <p class="feature-desc">Auto-adjusts based on FPS and ping. Stays smooth under load. Monitors system metrics in real-time to optimize script execution.</p>
+                </div>
+                <div class="feature-card" data-delay="100">
+                    <div class="feature-icon">🌐</div>
+                    <h3 class="feature-title">Universal Compatibility</h3>
+                    <p class="feature-desc">Works on Delta, Fluxus, Codex, and more. Tested across all major Roblox executors for maximum reliability.</p>
+                </div>
+                <div class="feature-card" data-delay="200">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">Visuals & UI</h3>
+                    <p class="feature-desc">Clean interface built on WindUI v2. Easy toggles, fast navigation. Intuitive design with customizable themes.</p>
+                </div>
+                <div class="feature-card" data-delay="300">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Security</h3>
+                    <p class="feature-desc">Anti-detection measures and a safe-mode fallback for risky sessions. Protects your account with advanced obfuscation.</p>
+                </div>
+            </div>
+        </section>
+
+        --- Compatibility Section -->
+<section class="compatibility-section" id="compatibility">
+        <div class="section-label reveal">Support System</div>
+        <h2 class="section-title reveal">COMPATIBILITY</h2>
+        
+        <div class="compat-list reveal">
+            <div class="sidebar-title" style="border-bottom: 2px solid var(--accent); margin-top: 0; padding-bottom: 10px; font-size: 14px;">[ PHONE ]</div>
+            <div class="compat-item visible">
+                <div class="compat-name">All Executors</div>
+                <div class="compat-status supported">SUPPORTED</div>
+            </div>
+
+            <div style="margin-top: 30px;"></div>
+            <div class="sidebar-title" style="border-bottom: 2px solid var(--accent); padding-bottom: 10px; font-size: 14px;">[ PC ]</div>
+            
+            <div class="compat-item visible">
+                <div class="compat-name">Velocity</div>
+                <div class="compat-status supported">SUPPORTED</div>
+            </div>
+            <div class="compat-item visible">
+                <div class="compat-name">Solara</div>
+                <div class="compat-status supported">SUPPORTED</div>
+            </div>
+            <div class="compat-item visible">
+                <div class="compat-name">Xeno</div>
+                <div class="compat-status supported">SUPPORTED</div>
+            </div>
+            <div class="compat-item visible">
+                <div class="compat-name">Ronix</div>
+                <div class="compat-status supported">SUPPORTED</div>
+            </div>
+            
+            <div class="compat-item visible" style="background: rgba(0, 240, 255, 0.05); border-left: 3px solid var(--accent);">
+                <div class="compat-name" style="font-weight: bold; color: var(--accent);">All Paid Executors</div>
+                <div class="compat-status supported">STABLE</div>
+            </div>
+        </div>
+
+        <p class="compat-note reveal">Note: Veltrix is optimized for performance on both platforms.</p>
+    </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section" id="cta">
+            <h2 class="cta-title" id="ctaTitle">READY TO RUN?</h2>
+            <p class="cta-subtitle" id="ctaSubtitle">Copy the loadstring, launch your executor, and start Veltrix Hub in seconds.</p>
+            <button class="btn btn-primary cta-btn" id="ctaCopyBtn" data-code="loadstring(game:HttpGet(&quot;https://veltrix.dev/loader.lua&quot;))()">
+                Copy Loadstring
+            </button>
+        </section>
+
+        <!-- Terminal Section -->
+        <section class="terminal-section" id="terminal">
+            <div class="terminal-box">
+                <div class="terminal-header">
+                    <span class="terminal-dot red"></span>
+                    <span class="terminal-dot yellow"></span>
+                    <span class="terminal-dot green"></span>
+                    <span class="terminal-title">Roblox Console (F9)</span>
+                </div>
+                <div class="terminal-content">
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span>
+                        <span>Loading Veltrix Hub v2.4.1...</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span>
+                        <span>Checking executor compatibility... OK</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span>
+                        <span>Initializing WindUI v2 interface...</span>
+                    </div>
+                    <div class="terminal-line success">
+                        <span class="terminal-prompt">></span>
+                        <span>Successfully Reached The End of the script</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span>
+                        <span>Veltrix Hub loaded successfully!<span class="terminal-cursor"></span></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer class="footer-section" id="footer">
+            <div class="footer-content">
+                <h3 class="footer-title">Veltrix Docs</h3>
+                <p class="footer-text">Documentation and feature overview for Veltrix Hub. Built for clarity, speed, and compatibility.</p>
+                <div class="footer-links">
+                    <a href="#showcase" class="footer-link">Showcase</a>
+                    <a href="#features" class="footer-link">Features</a>
+                    <a href="#compatibility" class="footer-link">Compatibility</a>
+                </div>
+                <p class="footer-legal">Use at your own risk. Respect each game's terms of service.</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Copy Notification -->
+    <div class="copy-notification" id="copyNotification">
+        <div class="copy-notification-icon">✓</div>
+        <span class="copy-notification-text">Copied to Clipboard!</span>
+    </div>
+
+    <script>
+        // Loader Animation
+        const loader = document.getElementById('loader');
+        const loaderBar = document.getElementById('loaderBar');
+        const loaderPercent = document.getElementById('loaderPercent');
+        const navHeader = document.getElementById('navHeader');
+
+        let progress = 0;
+        const loadInterval = setInterval(() => {
+            progress += Math.random() * 15 + 5;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(loadInterval);
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    navHeader.classList.add('visible');
+                }, 400);
+            }
+            loaderBar.style.width = progress + '%';
+            loaderPercent.textContent = Math.floor(progress) + '%';
+        }, 100);
+
+        // Sidebar Toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            mainContent.classList.toggle('sidebar-open');
+        });
+
+        // Close sidebar when clicking on a link
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('sidebar-open');
+            });
+        });
+
+        // Copy to Clipboard Functionality
+        const copyNotification = document.getElementById('copyNotification');
+        let notificationTimeout;
+
+        function showNotification() {
+            copyNotification.classList.add('show');
+            clearTimeout(notificationTimeout);
+            notificationTimeout = setTimeout(() => {
+                copyNotification.classList.remove('show');
+            }, 2000);
+        }
+
+        function copyToClipboard(code, button) {
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification();
+                if (button) {
+                    const originalText = button.innerHTML;
+                    button.classList.add('copied');
+                    button.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+                    setTimeout(() => {
+                        button.classList.remove('copied');
+                        button.innerHTML = originalText;
+                    }, 1500);
+                }
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification();
+            });
+        }
+
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            copyToClipboard(this.dataset.code, this);
+        });
+
+        document.getElementById('ctaCopyBtn').addEventListener('click', function() {
+            copyToClipboard(this.dataset.code, this);
+        });
+
+        // Intersection Observer for Scroll Animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const delay = entry.target.dataset.delay || 0;
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, delay);
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements
+        document.querySelectorAll('.code-card, .helper-text, .feature-card, .compat-item, .cta-title, .cta-subtitle, .cta-btn').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Active Sidebar Link on Scroll
+        const sections = document.querySelectorAll('section[id]');
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+        function updateActiveLink() {
+            const scrollPos = window.scrollY + 100;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                const sectionId = section.getAttribute('id');
+
+                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                    sidebarLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + sectionId) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveLink);
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('sidebar-open');
+            }
+        });
+
+        // Terminal typing effect enhancement
+        const terminalLines = document.querySelectorAll('.terminal-line');
+        terminalLines.forEach((line, index) => {
+            line.style.opacity = '0';
+            setTimeout(() => {
+                line.style.transition = 'opacity 0.3s ease';
+                line.style.opacity = '1';
+            }, index * 200 + 500);
+        });
+
+        // Performance: Pause animations when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            const pixelGrid = document.querySelector('.pixel-grid');
+            const scanlines = document.querySelector('.scanlines');
+            
+            if (document.hidden) {
+                pixelGrid.style.animationPlayState = 'paused';
+                scanlines.style.animationPlayState = 'paused';
+            } else {
+                pixelGrid.style.animationPlayState = 'running';
+                scanlines.style.animationPlayState = 'running';
+            }
+        });
+    </script>
+</body>
+</html>
