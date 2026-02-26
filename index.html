@@ -765,100 +765,237 @@
         /* Compatibility Section */
         .compatibility-section {
             background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            padding: 60px 24px;
         }
 
-        .compat-list {
-            width: min(88vw, 720px);
-            background: var(--bg-tertiary);
-            border: 2px solid var(--accent-dim);
-            padding: 24px;
+        /* 3D Image Container */
+        .compat-image-container {
+            perspective: 1000px;
+            margin-bottom: 50px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .compat-image {
+            width: min(80vw, 500px);
+            height: auto;
+            border: 3px solid var(--accent);
+            box-shadow: 
+                0 0 20px var(--accent-glow),
+                0 0 40px rgba(0, 240, 255, 0.2),
+                0 0 60px rgba(0, 240, 255, 0.1);
+            transform-style: preserve-3d;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .compat-image:hover {
+            transform: 
+                perspective(1000px) 
+                rotateX(5deg) 
+                rotateY(-5deg) 
+                scale(1.05);
+            box-shadow: 
+                0 0 30px var(--accent-glow),
+                0 0 60px rgba(0, 240, 255, 0.4),
+                0 0 90px rgba(0, 240, 255, 0.2),
+                inset 0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        /* Split Column Layout */
+        .compat-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            width: min(95vw, 1000px);
+            margin: 0 auto;
+        }
+
+        /* Glassmorphism Cards */
+        .compat-card {
+            background: rgba(13, 27, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 8px;
+            padding: 28px;
             position: relative;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
         }
 
-        .compat-list::before,
-        .compat-list::after {
+        .compat-card::before,
+        .compat-card::after {
             content: '';
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background: var(--accent);
+            transition: all 0.3s ease;
         }
 
-        .compat-list::before {
-            top: -4px;
-            left: -4px;
+        .compat-card::before {
+            top: -5px;
+            left: -5px;
+            clip-path: polygon(0 0, 100% 0, 0 100%);
         }
 
-        .compat-list::after {
-            bottom: -4px;
-            right: -4px;
+        .compat-card::after {
+            bottom: -5px;
+            right: -5px;
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
         }
 
-        .compat-item {
+        .compat-card:hover {
+            border-color: var(--accent);
+            box-shadow: 
+                0 12px 40px rgba(0, 240, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .compat-card:hover::before,
+        .compat-card:hover::after {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .compat-card-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(14px, 2.5vw, 18px);
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            letter-spacing: 0.1em;
+        }
+
+        .compat-list-new {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-
-        .compat-item.visible {
-            opacity: 1;
-            transform: translateX(0);
-            transition: all 0.5s ease;
-        }
-
-        .compat-item:last-child {
-            border-bottom: none;
-        }
-
-        .compat-name {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 12px;
         }
 
-        .compat-name::before {
+        .compat-item-new {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: rgba(11, 15, 25, 0.5);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 4px;
+            transition: all 0.25s ease;
+            cursor: default;
+        }
+
+        .compat-item-new:hover {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--accent-dim);
+            box-shadow: 
+                0 0 15px rgba(0, 240, 255, 0.2),
+                inset 0 0 10px rgba(0, 240, 255, 0.05);
+            transform: translateX(4px);
+        }
+
+        .compat-name-new {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .compat-name-new::before {
             content: '>';
             color: var(--accent);
+            font-weight: bold;
         }
 
-        .compat-status {
+        .compat-status-new {
             font-family: 'Press Start 2P', cursive;
-            font-size: 9px;
-            padding: 6px 12px;
+            font-size: 8px;
+            padding: 6px 10px;
             border: 1px solid;
+            border-radius: 3px;
+            white-space: nowrap;
         }
 
-        .compat-status.supported {
+        .compat-status-new.supported {
             color: var(--success);
             border-color: var(--success);
-            background: rgba(0, 255, 136, 0.1);
+            background: rgba(0, 255, 136, 0.12);
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.2);
         }
 
-        .compat-status.beta {
-            color: var(--warning);
-            border-color: var(--warning);
-            background: rgba(255, 215, 0, 0.1);
+        .compat-status-new.universal {
+            color: var(--success);
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.15);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            animation: pulse-green 2s ease-in-out infinite;
         }
 
-        .compat-status.planned {
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 8px rgba(0, 255, 136, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+        }
+
+        .compat-status-new.fmcs {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.12);
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+        }
+
+        .compat-status-new.stable {
+            color: #60A5FA;
+            border-color: #60A5FA;
+            background: rgba(96, 165, 250, 0.12);
+            box-shadow: 0 0 8px rgba(96, 165, 250, 0.2);
+        }
+
+        .compat-status-new.status {
             color: var(--text-secondary);
             border-color: var(--text-secondary);
             background: rgba(169, 179, 194, 0.1);
         }
 
-        .compat-note {
+        .compat-intro {
             text-align: center;
-            margin-top: 24px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-style: italic;
+            margin-top: 40px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(9px, 1.5vw, 11px);
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            letter-spacing: 0.15em;
+            opacity: 0.9;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .compat-columns {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .compat-card {
+                padding: 20px;
+            }
+
+            .compat-item-new {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .compat-image {
+                width: 90vw;
+            }
         }
 
         /* CTA Section */
@@ -1137,12 +1274,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .compat-item {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
-            }
-
             .sidebar-toggle {
                 top: auto;
                 bottom: 20px;
@@ -1319,44 +1450,73 @@
             </div>
         </section>
 
-<section class="compatibility-section" id="compatibility" style="display: block; opacity: 1;">
-            <h2 class="section-title" style="margin-bottom: 40px;">COMPATIBILITY</h2>
+        <!-- Compatibility Section -->
+        <section class="compatibility-section" id="compatibility">
+            <h2 class="section-title">COMPATIBILITY</h2>
             
-            <div class="compat-list" style="opacity: 1; transform: none;">
-                <div style="font-family: 'Press Start 2P', cursive; font-size: 12px; color: var(--accent); margin-bottom: 15px; border-bottom: 2px solid var(--accent-dim); padding-bottom: 5px;">[ PHONE ]</div>
-                <div class="compat-item visible" style="opacity: 1; transform: none; display: flex;">
-                    <span class="compat-name">All Executors</span>
-                    <span class="compat-status supported">SUPPORTED</span>
+            <!-- 3D Image with Hover Effect -->
+            <div class="compat-image-container">
+                <img 
+                    src="https://media.discordapp.net/attachments/1409152768454955129/1476455812149940254/image.png?ex=69a13020&is=699fdea0&hm=1226698341633e6f91aff7a2328bb3746a68d5eaf2cffb4e013f5a08b51ec831&=&format=webp&quality=lossless" 
+                    alt="Veltrix Hub Compatibility" 
+                    class="compat-image"
+                >
+            </div>
+            
+            <!-- Split Column Layout -->
+            <div class="compat-columns">
+                <!-- PHONE Column -->
+                <div class="compat-card">
+                    <h3 class="compat-card-title">PHONE</h3>
+                    <div class="compat-list-new">
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">All Mobile Executors</span>
+                            <span class="compat-status-new universal">UNIVERSAL</span>
+                        </div>
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">Xeno</span>
+                            <span class="compat-status-new supported">SUPPORTED</span>
+                        </div>
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">Ronix</span>
+                            <span class="compat-status-new supported">SUPPORTED</span>
+                        </div>
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">All Paid PC Executors</span>
+                            <span class="compat-status-new fmcs">FMCS R02</span>
+                        </div>
+                    </div>
                 </div>
-
-                <div style="margin-top: 30px;"></div>
-
-                <div style="font-family: 'Press Start 2P', cursive; font-size: 12px; color: var(--accent); margin-bottom: 15px; border-bottom: 2px solid var(--accent-dim); padding-bottom: 5px;">[ PC ]</div>
                 
-                <div class="compat-item visible" style="opacity: 1; transform: none; display: flex;">
-                    <span class="compat-name">Velocity</span>
-                    <span class="compat-status supported">SUPPORTED</span>
-                </div>
-                <div class="compat-item visible" style="opacity: 1; transform: none; display: flex;">
-                    <span class="compat-name">Solara</span>
-                    <span class="compat-status supported">SUPPORTED</span>
-                </div>
-                <div class="compat-item visible" style="opacity: 1; transform: none; display: flex;">
-                    <span class="compat-name">Xeno</span>
-                    <span class="compat-status supported">SUPPORTED</span>
-                </div>
-                <div class="compat-item visible" style="opacity: 1; transform: none; display: flex;">
-                    <span class="compat-name">Ronix</span>
-                    <span class="compat-status supported">SUPPORTED</span>
-                </div>
-                
-                <div class="compat-item visible" style="opacity: 1; transform: none; display: flex; background: rgba(0, 240, 255, 0.05);">
-                    <span class="compat-name" style="color: var(--accent); font-weight: bold;">All Paid PC Executors</span>
-                    <span class="compat-status supported">STABLE</span>
+                <!-- PC Column -->
+                <div class="compat-card">
+                    <h3 class="compat-card-title">PC</h3>
+                    <div class="compat-list-new">
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">Velocity</span>
+                            <span class="compat-status-new status">STATUS</span>
+                        </div>
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">Solara</span>
+                            <span class="compat-status-new supported">SUPPORTED</span>
+                        </div>
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">Xeno</span>
+                            <span class="compat-status-new supported">SUPPORTED</span>
+                        </div>
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">Ronix</span>
+                            <span class="compat-status-new stable">STABLE</span>
+                        </div>
+                        <div class="compat-item-new">
+                            <span class="compat-name-new">All Paid PC Executors</span>
+                            <span class="compat-status-new stable">STABLE</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <p class="compat-note" style="margin-top: 20px; opacity: 0.8;">Veltrix Hub is optimized for all listed platforms.</p>
+            <p class="compat-intro">SYSTEM // ALL EXECUTORS OPTIMIZED</p>
         </section>
 
         <!-- CTA Section -->
